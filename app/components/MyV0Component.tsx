@@ -1,62 +1,101 @@
-// you can overwrite this entire file with your v0 Component.
-// just copy and paste the "React" output over the entire file.
+"use client"
 
-import Link from "next/link";
-import React from "react";
-import {V0Logo} from "./symbols";
+import type React from "react"
 
-function TestComponent() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        height: "100%",
-        justifyContent: "space-between",
-        flexDirection: "column",
-        width: "100%",
-      }}
-    >
-      <h3
-        style={{
-          maxWidth: "11em",
-        }}
-      >
-        This would be a pretty good place for a{" "}
-        <Link href="https://v0.dev/" target="_blank" rel="noopener noreferrer">
-          v0 component
-        </Link>
-        , wouldn't it?
-      </h3>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          width: "100%",
-        }}
-      >
-        <p
-          style={{
-            maxWidth: "20em",
-          }}
-        >
-          Go make one, then paste it into{" "}
-          <code
-            style={{
-              fontFamily: "var(--font-geist-mono)",
-              fontWeight: 500,
-              fontSize: "0.95em",
-              fontFeatureSettings: "'ss09'",
-            }}
-          >
-            app/components/MyV0Component.tsx
-          </code>
-        </p>
+import { useState } from "react"
 
-        <V0Logo />
-      </div>
-    </div>
-  );
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+type ChoreFormData = {
+  name: string
+  day: string
+  time: string
 }
 
-export default TestComponent;
+type AddChoreFormProps = {
+  onSubmit: (data: ChoreFormData) => void
+  onCancel: () => void
+}
+
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+const timeOptions = ["Morning", "Afternoon", "Evening"]
+
+export function AddChoreForm({ onSubmit, onCancel }: AddChoreFormProps) {
+  const [formData, setFormData] = useState<ChoreFormData>({
+    name: "",
+    day: "",
+    time: "",
+  })
+
+  const handleChange = (field: keyof ChoreFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (formData.name && formData.day && formData.time) {
+      onSubmit(formData)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="chore-name">Chore Name</Label>
+          <Input
+            id="chore-name"
+            placeholder="Enter chore name"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="day">Day of Week</Label>
+          <Select value={formData.day} onValueChange={(value) => handleChange("day", value)}>
+            <SelectTrigger id="day">
+              <SelectValue placeholder="Select day" />
+            </SelectTrigger>
+            <SelectContent>
+              {daysOfWeek.map((day) => (
+                <SelectItem key={day} value={day}>
+                  {day}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="time">Time of Day</Label>
+          <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+            <SelectTrigger id="time">
+              <SelectValue placeholder="Select time" />
+            </SelectTrigger>
+            <SelectContent>
+              {timeOptions.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-2 pt-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">Add Chore</Button>
+      </div>
+    </form>
+  )
+}
+
